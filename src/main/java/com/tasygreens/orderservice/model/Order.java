@@ -1,12 +1,10 @@
 package com.tasygreens.orderservice.model;
 
 import lombok.*;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.lang.NonNull;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import java.util.Date;
 import java.util.List;
 
@@ -18,7 +16,6 @@ import java.util.List;
 @Document(collection = "Order")
 public class Order {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private String id;
 
     @NonNull

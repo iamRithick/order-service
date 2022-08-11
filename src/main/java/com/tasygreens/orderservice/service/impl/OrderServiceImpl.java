@@ -6,7 +6,6 @@ import com.tasygreens.orderservice.repo.OrderRepository;
 import com.tasygreens.orderservice.service.OrderService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
