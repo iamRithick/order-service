@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -23,12 +26,12 @@ public class OrderController {
     }
 
     @PostMapping(value = "/order", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<String, String>> placeOrder(@RequestBody Order order){
+    public ResponseEntity<Map<String, String>> placeOrder(@Validated @RequestBody Order order){
         Map<String, String> resultMap = new HashMap<>();
         ResponseEntity<Map<String, String>> response = new ResponseEntity<>(resultMap, HttpStatus.OK);
-        String id = orderService.processOrder(order);
+        Long id = orderService.processOrder(order);
         if (id != null){
-            resultMap.put("order_id", id);
+            resultMap.put("order_id", id.toString());
         } else {
             response = new ResponseEntity<>(resultMap, HttpStatus.INTERNAL_SERVER_ERROR);
             resultMap.put("error", "Unable to process the order.");
@@ -37,10 +40,26 @@ public class OrderController {
     }
 
     @GetMapping(value = "/order/{orderId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Order> fetchOrder(@PathVariable("orderId") String orderId){
-        Order order = new Order();
-        order.setId(orderId);
-        return new ResponseEntity<>(order, HttpStatus.OK);
+    public ResponseEntity<Object> fetchOrder(@PathVariable("orderId") Long orderId){
+        ResponseEntity<Object> orderResponse;
+        Order order = orderService.fetchOrderById(orderId);
+        if (order != null){
+            orderResponse = new ResponseEntity<>(order, HttpStatus.OK);
+        } else {
+            Map<String, String> errorMap = new HashMap<>();
+            errorMap.put("error", String.format("Order with id %d not found", orderId));
+            orderResponse = new ResponseEntity<>(errorMap, HttpStatus.OK);
+        }
+        return orderResponse;
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationException(MethodArgumentNotValidException ex){
+        Map<String, String> errorMap = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach(
+                error -> errorMap.put(((FieldError) error).getField(), error.getDefaultMessage()));
+        return errorMap;
     }
 
 }

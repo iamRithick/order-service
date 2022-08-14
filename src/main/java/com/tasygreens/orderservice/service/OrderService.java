@@ -4,8 +4,8 @@ import com.tasygreens.orderservice.model.Order;
 
 public interface OrderService {
 
-    public String processOrder(Order order);
+    public Long processOrder(Order order);
 
-    public Order fetchOrderById(String id);
+    public Order fetchOrderById(Long id);
 
 }
